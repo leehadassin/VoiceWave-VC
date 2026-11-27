@@ -26,7 +26,31 @@ jobs:
       - name: Build debug APK
         run: gradle :app:assembleDebug --no-daemon
 
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk VoiceWave.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: VoiceWave-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: VoiceWave.apk
+
+  release:
+    # Publish each main-branch build so the newest APK is always at
+    # https://github.com/leehadassin/VoiceWave-VC/releases/latest/download/VoiceWave.apk
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: VoiceWave-apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: VoiceWave build ${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          make_latest: "true"
+          files: VoiceWave.apk
