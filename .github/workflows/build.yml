@@ -4,6 +4,10 @@ on:
   push:
   workflow_dispatch:
 
+# Least privilege: the build only needs to read the code.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
