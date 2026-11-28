@@ -16,6 +16,12 @@ class WaveView(context: Context) : View(context) {
 
     var mode = Mode.WAVE
 
+    /** Diagnostics text drawn in the corner (long-press toggles). Shown by default for now. */
+    @Volatile var status = "Starting microphone…"
+    @Volatile var showStatus = true
+
+    private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
+
     /** 0..1 loudness, written by the mic thread. */
     @Volatile var targetLevel = 0f
 
@@ -70,6 +76,11 @@ class WaveView(context: Context) : View(context) {
         when (mode) {
             Mode.WAVE -> drawWave(canvas)
             Mode.SCOPE -> drawScope(canvas)
+        }
+        if (showStatus) {
+            text.textSize = height * 0.03f
+            var y = height * 0.06f
+            for (l in status.split("\n")) { canvas.drawText(l, width * 0.02f, y, text); y += text.textSize * 1.3f }
         }
         postInvalidateOnAnimation()
     }
